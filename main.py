@@ -6,6 +6,7 @@ from telebot import types
 
 bot = telebot.TeleBot('6572783840:AAGxAGKoDaxKE6-7fiqcxQPGfJvJ8JDIu3Q')
 oldURL = "https://quotes.toscrape.com"
+mytext = "https://quotes.toscrape.com,span,text"
 URL = 0
 oldTag = "span"
 Tag = 0
@@ -66,31 +67,29 @@ def on_click(message):
 
 URL = 0
 def process_first_option_input(message):
-    # User input for the first option
-    global URL
-    global Tag
-    global ClassName
 
-    bot.send_message(message.chat.id, 'Please enter URL')
+ inputString = message.text
+ values = inputString.split(',')
+ URL = values[0] if len(values) > 0 else None
+ Tag = values[1] if len(values) > 1 else None
+ ClassName = values[2] if len(values) > 2 else None
+ bot.send_message(message.chat.id, f'You entered: {URL}')
+ bot.send_message(message.chat.id, f'You entered: {Tag}')
+ bot.send_message(message.chat.id, f'You entered: {ClassName}')
+ parsing_function(message, URL, Tag, ClassName)
 
-    if URL == 0 :
-        URL = message.text
-        bot.send_message(message.chat.id, f'You entered: {URL}')
-        bot.register_next_step_handler(message, on_click)
 
-    if Tag == 0:
-        bot.send_message(message.chat.id, 'Please enter tag')
-        Tag = message.text
-        bot.send_message(message.chat.id, f'You entered: {Tag}')
-        bot.register_next_step_handler(message, on_click)
+def parsing_function(message,URL,Tag,ClassName):
 
-    if ClassName == 0:
-        bot.send_message(message.chat.id, 'Please enter class name')
-        ClassName = message.text
-        bot.send_message(message.chat.id, f'You entered: {ClassName}')
-        bot.register_next_step_handler(message, on_click)
-    # Send the menu markup again
-    start(message)
+      page_to_scrape = requests.get(URL)
+      soup = BeautifulSoup(page_to_scrape.text, "html.parser")
+      quotes = soup.findAll(Tag, attrs={"class": ClassName})
+      authors = soup.findAll("small", attrs={"class": "author"})
+
+      for quote, author in zip(quotes, authors):
+          bot.send_message(message.chat.id, quote.text + " - " + author.text)
+      parsing_function(message, URL, Tag, ClassName)
+
 
 
 def process_second_option_input(message):
