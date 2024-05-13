@@ -4,12 +4,15 @@ import webbrowser
 import requests
 from bs4 import BeautifulSoup
 from telebot import types
+import os
+
+
+with open(os.path.dirname(os.path.realpath(__file__)) + '/token.txt') as file:
+    TOKEN = file.readline().strip()
 
 
 
-
-
-bot = telebot.TeleBot('6572783840:AAGxAGKoDaxKE6-7fiqcxQPGfJvJ8JDIu3Q')
+bot = telebot.TeleBot(TOKEN)
 
 
 @bot.message_handler(commands=['start'])
