@@ -5,12 +5,10 @@ import requests
 from bs4 import BeautifulSoup
 from telebot import types
 import os
-
+import pandas as pd
 
 with open(os.path.dirname(os.path.realpath(__file__)) + '/token.txt') as file:
     TOKEN = file.readline().strip()
-
-
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -80,6 +78,31 @@ def process_third_option_input(message):
     bot.send_message(message.chat.id, f'You entered: {user_input}')
     # Send the menu markup again
     start(message)
+
+def sort_and_summarize_data(data):
+    #create a DataFrame from the given data
+    df = pd.DataFrame(data, columns=['Value'])
+
+    sorted_df = df.sort_values(by='Value')
+    lowest = sorted_df.iloc[0]['Value']
+    biggest = sorted_df.iloc[-1]['Value']
+
+    average = sorted_df['Value'].mean()
+
+    return sorted_df, lowest, biggest, average
+
+#example data
+data = [23, 56, 12, 78, 45, 90, 34, 67, -1]
+
+#sort data
+sorted_df, lowest, biggest, average = sort_and_summarize_data(data)
+
+print("Sorted Data:")
+print(sorted_df)
+print("Lowest Number:", lowest)
+print("Biggest Number:", biggest)
+print("Average Number:", average)
+
 
 
 if __name__ == '__main__':
