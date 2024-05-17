@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from telebot import types
 import os
 import pandas as pd
+import json
 
 with open(os.path.dirname(os.path.realpath(__file__)) + '/token.txt') as file:
     TOKEN = file.readline().strip()
@@ -15,6 +16,19 @@ bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start(message):
+    print('here')
+    print('https://api.telegram.org/bot63xxxxxx71:AAFoxxxxn0hwA-2TVSxxxNf4c/getUpdates')
+    # Create the payload with JSON encoding for options
+    parameters = {
+        "chat_id": 567656225,
+        "question": "What's your favorite programming language?",
+        "options": json.dumps(["Python", "JavaScript", "C++", "Java", "Go"]),  # JSON encode the options array
+        "allows_multiple_answers": True,
+        "is_anonymous": False
+    }
+    resp = requests.post(base_url, data=parameters)
+    print(resp.text)
+
     StartMarkup = types.ReplyKeyboardMarkup()
 
     btn1 = types.KeyboardButton('Menu')
@@ -55,13 +69,12 @@ def on_click(message):
         bot.send_message(message.chat.id, 'Four random people', reply_markup=markup2)
         bot.register_next_step_handler(message, on_click)
 
-
+def process_third_option_input(message):
+    print('here2')
+    # Call the send_poll function to activate the poll
+    send_poll(message)
 def process_first_option_input(message):
-    # User input for the second option
-    user_input = message.text
-    bot.send_message(message.chat.id, f'You entered: {user_input}')
-    # Send the menu markup again
-    start(message)
+    send_poll(message)
 
 
 def process_second_option_input(message):
@@ -72,36 +85,33 @@ def process_second_option_input(message):
     start(message)
 
 
-def process_third_option_input(message):
-    # User input for the third option
-    user_input = message.text
-    bot.send_message(message.chat.id, f'You entered: {user_input}')
-    # Send the menu markup again
-    start(message)
 
-def sort_and_summarize_data(data):
-    #create a DataFrame from the given data
-    df = pd.DataFrame(data, columns=['Value'])
 
-    sorted_df = df.sort_values(by='Value')
-    lowest = sorted_df.iloc[0]['Value']
-    biggest = sorted_df.iloc[-1]['Value']
+base_url = f"https://api.telegram.org/bot{TOKEN}/sendPoll"
 
-    average = sorted_df['Value'].mean()
+# Define your chat_id and question
 
-    return sorted_df, lowest, biggest, average
 
-#example data
-data = [23, 56, 12, 78, 45, 90, 34, 67, -1]
 
-#sort data
-sorted_df, lowest, biggest, average = sort_and_summarize_data(data)
 
-print("Sorted Data:")
-print(sorted_df)
-print("Lowest Number:", lowest)
-print("Biggest Number:", biggest)
-print("Average Number:", average)
+
+
+def send_poll(message):
+    print('here')
+    # Create the payload with JSON encoding for options
+    parameters = {
+        "chat_id": 6572783840,
+        "question": "What's your favorite programming language?",
+        "options": json.dumps(["Python", "JavaScript", "C++", "Java", "Go"]),  # JSON encode the options array
+
+    }
+    resp = requests.post(base_url, data=parameters)
+    print(resp.text)
+
+
+
+
+
 
 
 
