@@ -13,46 +13,16 @@ from telegram.ext import Updater
 with open(os.path.dirname(os.path.realpath(__file__)) + '/token.txt') as file:
     TOKEN = file.readline().strip()
 
-base_url = f"https://api.telegram.org/bot{TOKEN}/sendPoll"
-get_url = f"https://api.telegram.org/bot{TOKEN}/getPoll"
-
 bot = telebot.TeleBot(TOKEN)
 
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    base_url = f"https://api.telegram.org/bot{TOKEN}/sendPoll"
-    parameters = {
-        "chat_id": message.chat.id,
-        "question": "What's your favorite programming language?",
-        "options": json.dumps(["Python", "JavaScript", "C++", "Java", "Go"]),  # JSON encode the options array
-        "allows_multiple_answers": True,
-        "is_anonymous": False
-    }
-    #resp = requests.post(base_url, data=parameters)
-    #print(resp.text)
-
-    response = requests.get(base_url, params=parameters)
 
 
-    poll_data = response.json()
-    #print(poll_data)
-    poll_id = poll_data['result']['message_id']
-    print("Poll ID:", poll_id)
 
-    param = {
-        "chat_id": message.chat.id,
-        "question": "What's your favorite programming language?",
-        "options": json.dumps(["Python", "JavaScript", "C++", "Java", "Go"]),  # JSON encode the options array
-        "allows_multiple_answers": True,
-        "is_anonymous": False,
-        "message_id": poll_id
 
-    }
-    response2 = requests.get(get_url, params=param)
 
-    print(response2.json())
-    print(requests.(chat_id=message.chat.id, message_id=poll_id))
 
     StartMarkup = types.ReplyKeyboardMarkup()
 
