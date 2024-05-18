@@ -7,20 +7,21 @@ from telebot import types
 import os
 import pandas as pd
 import json
+from telegram.ext import Updater
 
 with open(os.path.dirname(os.path.realpath(__file__)) + '/token.txt') as file:
     TOKEN = file.readline().strip()
+
+base_url = f"https://api.telegram.org/bot{TOKEN}/sendPoll"
 
 bot = telebot.TeleBot(TOKEN)
 
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    print('here')
-    print('https://api.telegram.org/bot63xxxxxx71:AAFoxxxxn0hwA-2TVSxxxNf4c/getUpdates')
-    # Create the payload with JSON encoding for options
+
     parameters = {
-        "chat_id": 567656225,
+        "chat_id": message.chat.id,
         "question": "What's your favorite programming language?",
         "options": json.dumps(["Python", "JavaScript", "C++", "Java", "Go"]),  # JSON encode the options array
         "allows_multiple_answers": True,
@@ -70,11 +71,9 @@ def on_click(message):
         bot.register_next_step_handler(message, on_click)
 
 def process_third_option_input(message):
-    print('here2')
-    # Call the send_poll function to activate the poll
-    send_poll(message)
+    start(message)
 def process_first_option_input(message):
-    send_poll(message)
+    start(message)
 
 
 def process_second_option_input(message):
@@ -83,36 +82,6 @@ def process_second_option_input(message):
     bot.send_message(message.chat.id, f'You entered: {user_input}')
     # Send the menu markup again
     start(message)
-
-
-
-
-base_url = f"https://api.telegram.org/bot{TOKEN}/sendPoll"
-
-# Define your chat_id and question
-
-
-
-
-
-
-def send_poll(message):
-    print('here')
-    # Create the payload with JSON encoding for options
-    parameters = {
-        "chat_id": 6572783840,
-        "question": "What's your favorite programming language?",
-        "options": json.dumps(["Python", "JavaScript", "C++", "Java", "Go"]),  # JSON encode the options array
-
-    }
-    resp = requests.post(base_url, data=parameters)
-    print(resp.text)
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
