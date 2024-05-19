@@ -46,7 +46,21 @@ def analyze_games(games):
 
     return results_array
 
+def analyze_certain_amount_of_games(number_of_games):
+    games = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx')
+    results_array = []
 
+    # Calculate average price
+    avg_price = games['Price'].mean()
+
+    # Determine the price range
+    min_price_range = avg_price * 0.75
+    max_price_range = avg_price * 1.25
+
+    # Filter games within the price range
+    games_within_range = games[(games['Price'] >= min_price_range) & (games['Price'] <= max_price_range)]
+
+    return games_within_range.head(number_of_games)
 def analyze_filtered_games(platform, edition, region, activation_type):
     filtered_games = filter_games(platform, edition, region, activation_type)
     return analyze_games(filtered_games)
