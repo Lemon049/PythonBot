@@ -10,17 +10,38 @@ import pandas as pd
 import json
 from telegram.ext import Updater
 
+
 with open(os.path.dirname(os.path.realpath(__file__)) + '/token.txt') as file:
     TOKEN = file.readline().strip()
 
 bot = telebot.TeleBot(TOKEN)
-
+file_path = 'C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx'
 
 @bot.message_handler(commands=['start'])
 def start(message):
+     
+    df = pd.read_excel(file_path)
+
+    # Initialize dictionaries to store unique strings for each column
+    unique_strings = {}
 
 
 
+
+
+    # Process the 3rd, 4th, and 5th columns (indices 2, 3, and 4 respectively)
+    for col_index in [1,2, 3, 4]:
+        # Select the column
+        column_data = df.iloc[:, col_index]
+
+        # Convert to a list and filter unique strings
+        unique_strings[col_index] = list(set(column_data.astype(str)))
+
+    # Print the unique strings for each column
+    for col_index in [1,2, 3, 4]:
+        print(f"column {col_index + 1}:")
+        print(unique_strings[col_index])
+        print()
 
 
 
