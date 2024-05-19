@@ -14,6 +14,7 @@ import json
 from telegram.ext import Updater
 import os
 
+
 with open(os.path.dirname(os.path.realpath(__file__)) + '/token.txt') as file:
     TOKEN = file.readline().strip()
 
@@ -61,13 +62,15 @@ def validation_of_game(message, user_input, Option):
     if url is not None:
         if Option == 'first':
             print('ok')
-            parsing.parsing_function(str(url))
-            print('nice')
+            #update_game_title(user_input)
+            #parsing_info = user_input
+            parsing.funpay_parsing(str(user_input))
+
             process_first_option_input(message)
 
         else:
-            print('not ok')
-            parsing.parsing_function(str(url))
+            parsing.funpay_parsing(str(user_input))
+
             process_second_option_input(message)
     else:
         bot.send_message(message.chat.id, f'You entered the wrong name of a game, please try again: {user_input}')
