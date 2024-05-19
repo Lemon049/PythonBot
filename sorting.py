@@ -15,19 +15,34 @@ def filter_games(platform, edition, region, activation_type):
 def analyze_games(games):
     results_array = []
 
-    # Find game with max price
-    max_price_game = games.loc[games['Price'].idxmax()]
-    max_price = max_price_game['Price']
-    results_array.append((max_price_game, max_price))
-
-    # Find game with min price
-    min_price_game = games.loc[games['Price'].idxmin()]
-    min_price = min_price_game['Price']
-    results_array.append((min_price_game, min_price))
-
     # Calculate average price
     avg_price = games['Price'].mean()
-    results_array.append(avg_price)
+
+    # Determine the price range
+    min_price_range = avg_price * 0.75
+    max_price_range = avg_price * 1.25
+
+    # Filter games within the price range
+    games_within_range = games[(games['Price'] >= min_price_range) & (games['Price'] <= max_price_range)]
+
+    if not games_within_range.empty:
+        # Find game with max price within range
+        max_price_game = games_within_range.loc[games_within_range['Price'].idxmax()]
+        max_price = max_price_game['Price']
+        results_array.append((max_price_game, max_price))
+
+        # Find game with min price within range
+        min_price_game = games_within_range.loc[games_within_range['Price'].idxmin()]
+        min_price = min_price_game['Price']
+        results_array.append((min_price_game, min_price))
+
+        # Calculate average price within range
+        avg_price_within_range = games_within_range['Price'].mean()
+        results_array.append(avg_price_within_range)
+    else:
+        results_array.append(None)
+        results_array.append(None)
+        results_array.append(None)
 
     return results_array
 
@@ -41,11 +56,14 @@ def main_filtered_games(platform, edition, region, activation_type):
     results = analyze_filtered_games(platform, edition, region, activation_type)
 
     # Output results
-    results_strings = [
-        f"Game with max price: {results[0][0]['Link']} - Price: {results[0][1]}",
-        f"Game with min price: {results[1][0]['Link']} - Price: {results[1][1]}",
-        f"Average price for games: {results[2]}"
-    ]
+    if results[0] is not None and results[1] is not None:
+        results_strings = [
+            f"Game with max price: {results[0][0]['Link']} - Price: {results[0][1]}",
+            f"Game with min price: {results[1][0]['Link']} - Price: {results[1][1]}",
+            f"Average price for games within range: {results[2]}"
+        ]
+    else:
+        results_strings = ["No games found within the specified price range."]
 
     return results_strings
 
@@ -55,11 +73,13 @@ def main_all_games():
     results = analyze_games(df)
 
     # Output results
-    results_strings = [
-        f"Game with max price: {results[0][0]['Link']} - Price: {results[0][1]}",
-        f"Game with min price: {results[1][0]['Link']} - Price: {results[1][1]}",
-        f"Average price for games: {results[2]}"
-    ]
+    if results[0] is not None and results[1] is not None:
+        results_strings = [
+            f"Game with max price: {results[0][0]['Link']} - Price: {results[0][1]} €",
+            f"Game with min price: {results[1][0]['Link']} - Price: {results[1][1]} €",
+            f"Average price for games within range: {results[2]:.2f} €"
+        ]
+    else:
+        results_strings = ["No games found within the specified price range."]
 
     return results_strings
-
