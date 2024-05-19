@@ -33,11 +33,16 @@ def start(message):
 
     bot.send_message(message.chat.id, 'Please select option', reply_markup=StartMarkup)
     bot.register_next_step_handler(message, on_click)
-    image_path2 = 'C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\Table1.png'
-    if os.path.exists(image_path2):
-        print('remove')
-        os.remove(image_path2)
-        print('removed')
+    image_paths = [
+        'C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\Table1.png',
+        'C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\Table2.png'
+    ]
+
+    for image_path in image_paths:
+        if os.path.exists(image_path):
+            print('Removing', image_path)
+            os.remove(image_path)
+            print('Removed', image_path)
 
 def receive_game(message,Option):
 
@@ -176,6 +181,7 @@ def process_region_selection(message, selected_games):
         process_first_option_input(message)
 
 def process_activation_selection(message, selected_games):
+    image_path2 = 'C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\Table2.png'
     user_activation_choice = int(message.text) - 1
 
     if 0 <= user_activation_choice < len(selected_games):
@@ -183,12 +189,17 @@ def process_activation_selection(message, selected_games):
 
         # 7. Write the selected activation type
         max_links = min(len(selected_games), 10)  # Limit to maximum 10 links
-        for index, game in selected_games.head(max_links).iterrows():
+        selected_games_10 = selected_games.head(10)  # Select only the first 10 rows
+
+        for index in range(len(selected_games_10)-1, -1, -1):  # Iterate in descending order
+            game = selected_games_10.iloc[index]
             game_info = f"Link: {game['Link']} - Price: {game['Price']} €"
             bot.send_message(message.chat.id, game_info)
 
-        # 8. Save unique games that match the selected platform, edition, region, and activation type
-        # Do whatever you need with the selected games
+        # Call create_plot_and_save with Rows_Input parameter
+        graph.create_plot_and_save(image_path2, selected_games_10)
+        bot.send_photo(chat_id=message.chat.id, photo=open(image_path2, 'rb'))
+
     else:
         bot.send_message(message.chat.id, "Invalid activation type choice. Please select again.")
         process_first_option_input(message)
@@ -208,14 +219,10 @@ def process_second_option_input(message):
 
     links = graph.create_plot_and_save(image_path)
 
-    start_index = 7  # Assuming link numbering starts from 1
-    reversed_links = links[start_index - 1:][::-1]
 
-    # Print all links with numbering
 
     for i, link in enumerate(reversed(links), 1):
         bot.send_message(message.chat.id,f"{i}. {link}")
-
 
 
     # Send the image

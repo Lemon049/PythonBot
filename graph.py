@@ -3,12 +3,15 @@ from PIL import Image
 import sorting
 
 
-def create_plot_and_save(filepath):
+def create_plot_and_save(filepath,Rows_Input = None):
     positions = [0.25, 1.5, 2.5, 3.75, 5, 6, 7, 7.75]
     Names = ['Platform', "Edition", "Region", "Activation type", "Price", "Seller", "Rating", "Stars"]
 
     # Assuming analyze_certain_amount_of_games returns a DataFrame
-    Rows = sorting.analyze_certain_amount_of_games(8)
+    if Rows_Input is not None and not Rows_Input.empty:
+        Rows = Rows_Input
+    else:
+        Rows = sorting.analyze_certain_amount_of_games(8)
     links = []
     for idx, row in Rows.iterrows():
         links.append(row['Link'])
