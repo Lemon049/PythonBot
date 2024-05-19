@@ -22,6 +22,7 @@ df2 = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\games.xlsx'
 
 @bot.message_handler(commands=['start'])
 def start(message):
+
     StartMarkup = types.ReplyKeyboardMarkup()
 
     btn1 = types.KeyboardButton('Menu')
@@ -56,10 +57,11 @@ def validation_of_game(message, user_input, Option):
             print('ok')
             parsing.parsing_function(str(url))
             print('nice')
-            bot.register_next_step_handler(message, process_first_option_input)
+            process_first_option_input(message)
         else:
             print('not ok')
-            bot.register_next_step_handler(message, process_second_option_input, url)
+            parsing.parsing_function(str(url))
+            process_second_option_input(message)
     else:
         bot.send_message(message.chat.id, f'You entered the wrong name of a game, please try again: {user_input}')
         bot.register_next_step_handler(message, receive_game)
@@ -79,18 +81,24 @@ def process_first_option_input(message):
 
     # Print the unique strings for each column
     for col_index in [1, 2, 3, 4]:
-        print(f"column {col_index + 1}:")
-        print(unique_strings[col_index])
-        print()
+        if col_index == 1:
+            text = 'Platforms'
+        elif col_index == 2:
+            text = 'Editions'
+        elif col_index == 3:
+            text = 'Regions'
+        else:
+            text = 'Ways of accepting'
 
+        bot.send_message(message.chat.id,
+    f' {text}: \n'
+         f'{unique_strings[col_index]}')
 
 
 def process_second_option_input(message):
-    # User input for the second option
-    user_input = message.text
-    bot.send_message(message.chat.id, f'You entered: {user_input}')
-    # Send the menu markup again
-    start(message)
+    rows = sorting.get_rows()
+    for row in rows:
+        bot.send_message(message.chat.id, row)
 
 def on_click(message):
     markup = types.ReplyKeyboardMarkup()
