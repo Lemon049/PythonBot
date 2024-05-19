@@ -9,6 +9,7 @@ from telegram import Bot
 import pandas as pd
 import parsing
 import sorting
+#import graph
 import json
 from telegram.ext import Updater
 

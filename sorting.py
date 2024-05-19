@@ -1,10 +1,10 @@
 import pandas as pd
 
-# Read the Excel file
-df = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx')
+
 
 
 def filter_games(platform, edition, region, activation_type):
+    df = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx')
     filtered_games = df[(df['Platform'] == platform) &
                         (df['Edition'] == edition) &
                         (df['Region'] == region) &
@@ -67,7 +67,10 @@ def main_filtered_games(platform, edition, region, activation_type):
 
     return results_strings
 
-
+def all_games_data():
+    df = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx')
+    results = analyze_games(df)
+    return results
 def main_all_games():
     df = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx')
     results = analyze_games(df)
@@ -83,3 +86,4 @@ def main_all_games():
         results_strings = ["No games found within the specified price range."]
 
     return results_strings
+
