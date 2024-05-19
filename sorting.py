@@ -51,6 +51,7 @@ def main_filtered_games(platform, edition, region, activation_type):
 
 
 def main_all_games():
+    df = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx')
     results = analyze_games(df)
 
     # Output results
@@ -62,20 +63,3 @@ def main_all_games():
 
     return results_strings
 
-
-if __name__ == "__main__":
-    # Example usage for filtered games
-    platform = "pc"
-    edition = "premium edition"
-    region = "турция"
-    activation_type = "с заходом на аккаунт"
-    results_filtered = main_filtered_games(platform, edition, region, activation_type)
-    print("Filtered games:")
-    for result in results_filtered:
-        print(result)
-
-    # Example usage for all games
-    print("\nAll games:")
-    results_all = main_all_games()
-    for result in results_all:
-        print(result)

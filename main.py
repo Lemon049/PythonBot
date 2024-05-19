@@ -17,7 +17,7 @@ with open(os.path.dirname(os.path.realpath(__file__)) + '/token.txt') as file:
     TOKEN = file.readline().strip()
 
 bot = telebot.TeleBot(TOKEN)
-df = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx')
+
 df2 = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\games.xlsx')
 
 @bot.message_handler(commands=['start'])
@@ -64,10 +64,10 @@ def validation_of_game(message, user_input, Option):
             process_second_option_input(message)
     else:
         bot.send_message(message.chat.id, f'You entered the wrong name of a game, please try again: {user_input}')
-        bot.register_next_step_handler(message, receive_game)
+        bot.register_next_step_handler(message, receive_game, Option)
 
 def process_first_option_input(message):
-    bot.send_message(message.chat.id, 'Four random people')
+    df = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx')
     # Initialize dictionaries to store unique strings for each column
     unique_strings = {}
 
@@ -93,12 +93,27 @@ def process_first_option_input(message):
         bot.send_message(message.chat.id,
     f' {text}: \n'
          f'{unique_strings[col_index]}')
+    bot.send_message(message.chat.id, 'Please provide data in the following format: Platforms,Editions,Regions,Ways of accepting')
+    bot.register_next_step_handler(message, process_first_option_answer)
+def process_first_option_answer(message):
+
+    elements = message.text.split(',')
+
+    # Convert the elements into an array
+    data_array = list(elements)
+
+    results_filtered = sorting.main_filtered_games(data_array[0], data_array[1], data_array[2], data_array[3])
+    bot.send_message(message.chat.id, 'Filtered games:')
+    for result in results_filtered:
+        bot.send_message(message.chat.id, result)
+
 
 
 def process_second_option_input(message):
-    rows = sorting.get_rows()
-    for row in rows:
-        bot.send_message(message.chat.id, row)
+    results_all = sorting.main_all_games()
+    bot.send_message(message.chat.id, 'Games without filters:')
+    for result in results_all:
+        bot.send_message(message.chat.id, result)
 
 def on_click(message):
     markup = types.ReplyKeyboardMarkup()

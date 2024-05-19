@@ -6,7 +6,7 @@ import pandas as pd
 def parsing_function(url):
 
 
-    response = requests.get('https://funpay.com/en/lots/955/')
+    response = requests.get(url)
     html_doc = response.text
 
     soup = BeautifulSoup(html_doc, 'html.parser')
@@ -48,4 +48,4 @@ def parsing_function(url):
 
     df = pd.DataFrame(data)
 
-    df.to_excel('scraped_data.xlsx2', index=False)
+    df.to_excel('scraped_data.xlsx', index=False)
