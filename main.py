@@ -50,15 +50,18 @@ def start(message):
     bot.send_message(message.chat.id, 'Please select option', reply_markup=StartMarkup)
     bot.register_next_step_handler(message, on_click)
 
-def receive_game(message):
+def receive_game(message,Option):
 
     bot.send_message(message.chat.id, f'You entered: {message.text}')
-    validation_of_game(message,message.text)
+    validation_of_game(message,message.text,Option)
 
-def validation_of_game(message,user_input):
+def validation_of_game(message,user_input,Option):
     print(user_input)
-    if user_input == '1':
-        bot.register_next_step_handler(message,process_first_option_input, user_input)
+    if user_input == 'A':
+        if Option == '1':
+           bot.register_next_step_handler(message,process_first_option_input, user_input)
+        else:
+            bot.register_next_step_handler(message, process_second_option_input, user_input)
     else:
         bot.send_message(message.chat.id, f'You entered wrong name of a game, please try again {user_input}')
         bot.register_next_step_handler(message, receive_game)
@@ -73,25 +76,31 @@ def on_click(message):
     markup2 = types.ReplyKeyboardMarkup()
     btn11 = types.KeyboardButton('Menu')
     markup2.row(btn11)
-
+    Option = 0
     if message.text == 'Menu':
         bot.send_message(message.chat.id, 'Please select option', reply_markup=markup)
         bot.register_next_step_handler(message, on_click)
     elif message.text == 'Data for specific region/platform of the game':
-        bot.send_message(message.chat.id, 'Please provide name of the game', reply_markup=markup2)
+        Option = 1
 
-        bot.register_next_step_handler(message, receive_game)
+        bot.send_message(message.chat.id, 'Please provide name of the game')
+
+        bot.register_next_step_handler(message, receive_game,Option)
 
     elif message.text == 'Data for all variants of the game':
-        bot.send_message(message.chat.id, 'Please provide name of the game', reply_markup=markup2)
-        bot.register_next_step_handler(message, process_second_option_input)
+        Option = 2
+
+        bot.send_message(message.chat.id, 'Please provide name of the game')
+
+        bot.register_next_step_handler(message, receive_game, Option)
+
     elif message.text == 'Authors':
         bot.send_message(message.chat.id, 'Four random people', reply_markup=markup2)
         bot.register_next_step_handler(message, on_click)
 
 
 def process_first_option_input(message):
-    start(message)
+    bot.send_message(message.chat.id, '')
 
 
 def process_second_option_input(message):
