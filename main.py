@@ -19,15 +19,11 @@ file_path = 'C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx'
 
 @bot.message_handler(commands=['start'])
 def start(message):
-     
+
     df = pd.read_excel(file_path)
 
     # Initialize dictionaries to store unique strings for each column
     unique_strings = {}
-
-
-
-
 
     # Process the 3rd, 4th, and 5th columns (indices 2, 3, and 4 respectively)
     for col_index in [1,2, 3, 4]:
@@ -49,20 +45,30 @@ def start(message):
 
     btn1 = types.KeyboardButton('Menu')
     btn2 = types.KeyboardButton('Authors')
-    StartMarkup.row(btn1)
-    StartMarkup.row(btn2)
+    StartMarkup.row(btn1,btn2)
+
     bot.send_message(message.chat.id, 'Please select option', reply_markup=StartMarkup)
     bot.register_next_step_handler(message, on_click)
 
+def receive_game(message):
 
+    bot.send_message(message.chat.id, f'You entered: {message.text}')
+    validation_of_game(message,message.text)
+
+def validation_of_game(message,user_input):
+    print(user_input)
+    if user_input == '1':
+        bot.register_next_step_handler(message,process_first_option_input, user_input)
+    else:
+        bot.send_message(message.chat.id, f'You entered wrong name of a game, please try again {user_input}')
+        bot.register_next_step_handler(message, receive_game)
 def on_click(message):
     markup = types.ReplyKeyboardMarkup()
 
-    btn1 = types.KeyboardButton('First option')
-    markup.row(btn1)
-    btn2 = types.KeyboardButton('Second option')
-    btn3 = types.KeyboardButton('Third option')
-    markup.row(btn2, btn3)
+    btn1 = types.KeyboardButton('Data for specific region/platform of the game')
+    btn2 = types.KeyboardButton('Data for all variants of the game')
+    markup.row(btn1,btn2)
+
 
     markup2 = types.ReplyKeyboardMarkup()
     btn11 = types.KeyboardButton('Menu')
@@ -71,22 +77,19 @@ def on_click(message):
     if message.text == 'Menu':
         bot.send_message(message.chat.id, 'Please select option', reply_markup=markup)
         bot.register_next_step_handler(message, on_click)
-    elif message.text == 'First option':
-        bot.send_message(message.chat.id, 'Please provide data', reply_markup=markup2)
-        # Instead of using input(), use message.text to get user input
-        bot.register_next_step_handler(message, process_first_option_input)
-    elif message.text == 'Second option':
-        bot.send_message(message.chat.id, 'Please provide data', reply_markup=markup2)
+    elif message.text == 'Data for specific region/platform of the game':
+        bot.send_message(message.chat.id, 'Please provide name of the game', reply_markup=markup2)
+
+        bot.register_next_step_handler(message, receive_game)
+
+    elif message.text == 'Data for all variants of the game':
+        bot.send_message(message.chat.id, 'Please provide name of the game', reply_markup=markup2)
         bot.register_next_step_handler(message, process_second_option_input)
-    elif message.text == 'Third option':
-        bot.send_message(message.chat.id, 'Please provide data', reply_markup=markup2)
-        bot.register_next_step_handler(message, process_third_option_input)
     elif message.text == 'Authors':
         bot.send_message(message.chat.id, 'Four random people', reply_markup=markup2)
         bot.register_next_step_handler(message, on_click)
 
-def process_third_option_input(message):
-    start(message)
+
 def process_first_option_input(message):
     start(message)
 
