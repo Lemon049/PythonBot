@@ -9,6 +9,9 @@ def create_plot_and_save(filepath):
 
     # Assuming analyze_certain_amount_of_games returns a DataFrame
     Rows = sorting.analyze_certain_amount_of_games(8)
+    links = []
+    for idx, row in Rows.iterrows():
+        links.append(row['Link'])
 
     nrows = len(Rows)
     ncols = len(Names)
@@ -37,6 +40,7 @@ def create_plot_and_save(filepath):
     def show_logo(platform, i):
         start = 375
         i = i + 0.25
+        platform=platform.lower()
         if platform == 'ps':
             ax.figure.figimage(ps, 2.65 * 300, 290 * i + 37 * nrows)
         if platform == 'pc':
@@ -93,7 +97,7 @@ def create_plot_and_save(filepath):
     ax.set_axis_off()
     fig.savefig(filepath)
     #plt.close(fig)
-
+    return links
 
 # Call the function to create the plot and save it
 #create_plot_and_save('Table1.png')
