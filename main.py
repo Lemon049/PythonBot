@@ -9,10 +9,10 @@ from telegram import Bot
 import pandas as pd
 import parsing
 import sorting
-#import graph
+import graph
 import json
 from telegram.ext import Updater
-
+import os
 
 with open(os.path.dirname(os.path.realpath(__file__)) + '/token.txt') as file:
     TOKEN = file.readline().strip()
@@ -32,6 +32,11 @@ def start(message):
 
     bot.send_message(message.chat.id, 'Please select option', reply_markup=StartMarkup)
     bot.register_next_step_handler(message, on_click)
+    image_path2 = 'C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\Table1.png'
+    if os.path.exists(image_path2):
+        print('remove')
+        os.remove(image_path2)
+        print('removed')
 
 def receive_game(message,Option):
 
@@ -59,6 +64,7 @@ def validation_of_game(message, user_input, Option):
             parsing.parsing_function(str(url))
             print('nice')
             process_first_option_input(message)
+
         else:
             print('not ok')
             parsing.parsing_function(str(url))
@@ -110,11 +116,22 @@ def process_first_option_answer(message):
 
 
 
+
 def process_second_option_input(message):
+    image_path = 'C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\Table1.png'
     results_all = sorting.main_all_games()
     bot.send_message(message.chat.id, 'Games without filters:')
     for result in results_all:
         bot.send_message(message.chat.id, result)
+
+
+
+
+    graph.create_plot_and_save(image_path)
+
+
+    # Send the image
+    bot.send_photo(chat_id=message.chat.id, photo=open(image_path, 'rb'))
 
 def on_click(message):
     markup = types.ReplyKeyboardMarkup()
