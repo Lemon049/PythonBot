@@ -7,6 +7,8 @@ from telebot import types
 import os
 from telegram import Bot
 import pandas as pd
+import parsing
+import sorting
 import json
 from telegram.ext import Updater
 
@@ -15,32 +17,11 @@ with open(os.path.dirname(os.path.realpath(__file__)) + '/token.txt') as file:
     TOKEN = file.readline().strip()
 
 bot = telebot.TeleBot(TOKEN)
-file_path = 'C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx'
+df = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\scraped_data.xlsx')
+df2 = pd.read_excel('C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\games.xlsx')
 
 @bot.message_handler(commands=['start'])
 def start(message):
-
-    df = pd.read_excel(file_path)
-
-    # Initialize dictionaries to store unique strings for each column
-    unique_strings = {}
-
-    # Process the 3rd, 4th, and 5th columns (indices 2, 3, and 4 respectively)
-    for col_index in [1,2, 3, 4]:
-        # Select the column
-        column_data = df.iloc[:, col_index]
-
-        # Convert to a list and filter unique strings
-        unique_strings[col_index] = list(set(column_data.astype(str)))
-
-    # Print the unique strings for each column
-    for col_index in [1,2, 3, 4]:
-        print(f"column {col_index + 1}:")
-        print(unique_strings[col_index])
-        print()
-
-
-
     StartMarkup = types.ReplyKeyboardMarkup()
 
     btn1 = types.KeyboardButton('Menu')
@@ -55,16 +36,62 @@ def receive_game(message,Option):
     bot.send_message(message.chat.id, f'You entered: {message.text}')
     validation_of_game(message,message.text,Option)
 
-def validation_of_game(message,user_input,Option):
+def find_game_url(game_name):
+    url = None
+    for index, row in df2.iterrows():
+        if row['Game Title'] == game_name:
+            url = row['Link']
+            break
+    return url
+
+
+def validation_of_game(message, user_input, Option):
     print(user_input)
-    if user_input == 'A':
-        if Option == '1':
-           bot.register_next_step_handler(message,process_first_option_input, user_input)
+    url = find_game_url(user_input)
+    print(user_input)
+    print(url)
+    print(Option)
+    if url is not None:
+        if Option == 'first':
+            print('ok')
+            parsing.parsing_function(str(url))
+            print('nice')
+            bot.register_next_step_handler(message, process_first_option_input)
         else:
-            bot.register_next_step_handler(message, process_second_option_input, user_input)
+            print('not ok')
+            bot.register_next_step_handler(message, process_second_option_input, url)
     else:
-        bot.send_message(message.chat.id, f'You entered wrong name of a game, please try again {user_input}')
+        bot.send_message(message.chat.id, f'You entered the wrong name of a game, please try again: {user_input}')
         bot.register_next_step_handler(message, receive_game)
+
+def process_first_option_input(message):
+    bot.send_message(message.chat.id, 'Four random people')
+    # Initialize dictionaries to store unique strings for each column
+    unique_strings = {}
+
+    # Process the 3rd, 4th, and 5th columns (indices 2, 3, and 4 respectively)
+    for col_index in [1, 2, 3, 4]:
+        # Select the column
+        column_data = df.iloc[:, col_index]
+
+        # Convert to a list and filter unique strings
+        unique_strings[col_index] = list(set(column_data.astype(str)))
+
+    # Print the unique strings for each column
+    for col_index in [1, 2, 3, 4]:
+        print(f"column {col_index + 1}:")
+        print(unique_strings[col_index])
+        print()
+
+
+
+def process_second_option_input(message):
+    # User input for the second option
+    user_input = message.text
+    bot.send_message(message.chat.id, f'You entered: {user_input}')
+    # Send the menu markup again
+    start(message)
+
 def on_click(message):
     markup = types.ReplyKeyboardMarkup()
 
@@ -76,19 +103,19 @@ def on_click(message):
     markup2 = types.ReplyKeyboardMarkup()
     btn11 = types.KeyboardButton('Menu')
     markup2.row(btn11)
-    Option = 0
+    Option = None
     if message.text == 'Menu':
         bot.send_message(message.chat.id, 'Please select option', reply_markup=markup)
         bot.register_next_step_handler(message, on_click)
     elif message.text == 'Data for specific region/platform of the game':
-        Option = 1
+        Option = 'first'
 
         bot.send_message(message.chat.id, 'Please provide name of the game')
 
         bot.register_next_step_handler(message, receive_game,Option)
 
     elif message.text == 'Data for all variants of the game':
-        Option = 2
+        Option = 'second'
 
         bot.send_message(message.chat.id, 'Please provide name of the game')
 
@@ -99,16 +126,6 @@ def on_click(message):
         bot.register_next_step_handler(message, on_click)
 
 
-def process_first_option_input(message):
-    bot.send_message(message.chat.id, '')
-
-
-def process_second_option_input(message):
-    # User input for the second option
-    user_input = message.text
-    bot.send_message(message.chat.id, f'You entered: {user_input}')
-    # Send the menu markup again
-    start(message)
 
 
 if __name__ == '__main__':
