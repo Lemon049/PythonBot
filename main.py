@@ -119,13 +119,17 @@ def process_platform_selection(message, unique_platforms, df):
         process_first_option_input(message)
 
 def process_edition_selection(message, selected_platform, unique_editions, df):
-    user_edition_choice = int(message.text) - 1
+    try:
+        user_edition_choice = int(message.text) - 1
+    except ValueError:
+        bot.send_message(message.chat.id, "Invalid input. Please enter a number corresponding to your choice.")
+        return process_first_option_input(message)
 
     if 0 <= user_edition_choice < len(unique_editions):
         selected_edition = unique_editions[user_edition_choice]
 
         # 1. Write the selected edition
-        bot.send_message(message.chat.id, f"Selected edition:{selected_edition}")
+        bot.send_message(message.chat.id, f"Selected edition: {selected_edition}")
 
         # 2. Filter games based on selected platform and edition
         selected_games = df[(df['Platform'] == selected_platform) & (df['Edition'] == selected_edition)]
@@ -155,8 +159,9 @@ def process_region_selection(message, selected_games):
         bot.send_message(message.chat.id, "Invalid input. Please enter a number corresponding to your choice.")
         return process_first_option_input(message)
 
-    if 0 <= user_region_choice < len(selected_games):
-        selected_region = selected_games.iloc[user_region_choice]['Region']
+    unique_regions = selected_games['Region'].unique()
+    if 0 <= user_region_choice < len(unique_regions):
+        selected_region = unique_regions[user_region_choice]
 
         # 4. Write the selected region
         bot.send_message(message.chat.id, f"Selected region: {selected_region}")
@@ -182,30 +187,63 @@ def process_region_selection(message, selected_games):
         bot.send_message(message.chat.id, "Invalid region choice. Please select again.")
         process_first_option_input(message)
 
+def process_activation_selection(message, filtered_games):
+    try:
+        user_activation_choice = int(message.text) - 1  # Convert to 0-based index
+    except ValueError:
+        bot.send_message(message.chat.id, "Invalid input. Please enter a number corresponding to your choice.")
+        return process_first_option_input(message)
 
-def process_activation_selection(message, selected_games):
-    image_path2 = 'C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\Table2.png'
-    user_activation_choice = int(message.text) - 1
+    unique_activation_types = filtered_games['Activation type'].unique()
+    if 0 <= user_activation_choice < len(unique_activation_types):
+        selected_activation_type = unique_activation_types[user_activation_choice]
 
-    if 0 <= user_activation_choice < len(selected_games):
-        selected_activation = selected_games.iloc[user_activation_choice]['Activation type']
-        number_of_games = 10
         # 7. Write the selected activation type
-        max_links = min(len(selected_games), number_of_games)
-        selected = selected_games.head(number_of_games)
+        bot.send_message(message.chat.id, f"Selected activation type: {selected_activation_type}")
 
-        for index in range(len(selected)-1, -1, -1):
-            game = selected.iloc[index]
-            game_info = f"Link: {game['Link']} - Price: {game['Price']} €"
-            bot.send_message(message.chat.id, game_info)
-
-        # Call create_plot_and_save with Rows_Input parameter
-        graph.create_plot_and_save(image_path2, selected)
-        bot.send_photo(chat_id=message.chat.id, photo=open(image_path2, 'rb'))
-
+        # Further processing based on the selected activation type
+        # This part can be expanded as needed for your application logic
+        bot.register_next_step_handler(message, process_activation_selection, filtered_games)
     else:
         bot.send_message(message.chat.id, "Invalid activation type choice. Please select again.")
         process_first_option_input(message)
+
+
+def process_activation_selection(message, filtered_games):
+    try:
+        user_activation_choice = int(message.text) - 1  # Convert to 0-based index
+    except ValueError:
+        bot.send_message(message.chat.id, "Invalid input. Please enter a number corresponding to your choice.")
+        return process_activation_selection(message, filtered_games)  # Retry activation selection
+
+    unique_activation_types = filtered_games['Activation type'].unique()
+    if 0 <= user_activation_choice < len(unique_activation_types):
+        selected_activation_type = unique_activation_types[user_activation_choice]
+
+        # Inform the user of the selected activation type
+        bot.send_message(message.chat.id, f"Selected activation type: {selected_activation_type}")
+
+        # Filter games based on the selected activation type
+        final_filtered_games = filtered_games[filtered_games['Activation type'] == selected_activation_type]
+
+        if not final_filtered_games.empty:
+            # Send game information to the user
+            for index in range(len(final_filtered_games.head(10)) - 1, -1, -1):
+                game = final_filtered_games.iloc[index]
+                game_info = f"Link: {game['Link']} - Price: {game['Price']} €"
+                bot.send_message(message.chat.id, game_info)
+
+            # Call create_plot_and_save with final_filtered_games
+            image_path2 = "C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\Table2.png"  # Define the path to save the image
+            graph.create_plot_and_save(image_path2, final_filtered_games.head(10))
+            bot.send_photo(chat_id=message.chat.id, photo=open(image_path2, 'rb'))
+        else:
+            bot.send_message(message.chat.id, "There are no games available for the selected activation type.")
+            process_region_selection(message, filtered_games)
+    else:
+        bot.send_message(message.chat.id, "Invalid activation type choice. Please select again.")
+        process_activation_selection(message, filtered_games)  # Retry activation selection
+
 
 
 
@@ -243,7 +281,7 @@ def on_click(message):
     if message.text == 'Menu':
         bot.send_message(message.chat.id, 'Please select option', reply_markup=markup)
         bot.register_next_step_handler(message, on_click)
-        
+
     elif message.text == 'Sorted prices':
         Option = 'first'
         bot.send_message(message.chat.id, 'Please provide name of the game')
