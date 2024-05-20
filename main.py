@@ -154,7 +154,7 @@ def process_edition_selection(message, selected_platform, unique_editions, df):
 
 def process_region_selection(message, selected_games):
     try:
-        user_region_choice = int(message.text) - 1  # Convert to 0-based index
+        user_region_choice = int(message.text) - 1
     except ValueError:
         bot.send_message(message.chat.id, "Invalid input. Please enter a number corresponding to your choice.")
         return process_first_option_input(message)
@@ -189,7 +189,7 @@ def process_region_selection(message, selected_games):
 
 def process_activation_selection(message, filtered_games):
     try:
-        user_activation_choice = int(message.text) - 1  # Convert to 0-based index
+        user_activation_choice = int(message.text) - 1
     except ValueError:
         bot.send_message(message.chat.id, "Invalid input. Please enter a number corresponding to your choice.")
         return process_first_option_input(message)
@@ -234,7 +234,7 @@ def process_activation_selection(message, filtered_games):
                 bot.send_message(message.chat.id, game_info)
 
             # Call create_plot_and_save with final_filtered_games
-            image_path2 = "C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\Table2.png"  # Define the path to save the image
+            image_path2 = "C:\\Users\\Yehor\\Documents\\GitHub\\PythonBot\\Table2.png"
             graph.create_plot_and_save(image_path2, final_filtered_games.head(10))
             bot.send_photo(chat_id=message.chat.id, photo=open(image_path2, 'rb'))
         else:
@@ -242,7 +242,7 @@ def process_activation_selection(message, filtered_games):
             process_region_selection(message, filtered_games)
     else:
         bot.send_message(message.chat.id, "Invalid activation type choice. Please select again.")
-        process_activation_selection(message, filtered_games)  # Retry activation selection
+        process_activation_selection(message, filtered_games)
 
 
 
@@ -266,7 +266,7 @@ def process_second_option_input(message):
         bot.send_message(message.chat.id,f"{i}. {link}")
 
 
-    # Send the image
+
     bot.send_photo(chat_id=message.chat.id, photo=open(image_path, 'rb'))
 
 def on_click(message):
