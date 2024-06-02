@@ -68,6 +68,8 @@ def funpay_parsing(game_title):
 
     data = []
 
+    t = items[1].get('data-f-type', '')
+
     for index, item in enumerate(items):
         print(f"Processing item {index + 1}/{len(items)}")
 
